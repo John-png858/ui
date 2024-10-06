@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Mess Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #FFF5E6;
+        }
+        .slider-container {
+            position: relative;
+            max-width: 100%;
+            height: 80vh;
+            overflow: hidden;
+        }
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .slide.active {
+            opacity: 1;
+        }
+        .slide img, .slide video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .next-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(255, 165, 0, 0.7);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .video-controls {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .video-controls button {
+            background-color: rgba(255, 165, 0, 0.7);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin: 0 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .floating-buttons {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+        .floating-buttons a {
+            background-color: #FF6347;
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
+            margin: 5px 0;
+            border-radius: 5px;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+        .floating-buttons a:hover {
+            background-color: #FF4500;
+        }
+        #debug-info {
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="slider-container">
+        <div class="slide active">
+            <img src="image1.jpg.png" alt="Food Image 1" onerror="this.onerror=null; this.src='/api/placeholder/800/600'; this.alt='Image 1 not found'">
+        </div>
+        <div class="slide">
+            <img src="image2.jpg.png" alt="Food Image 2" onerror="this.onerror=null; this.src='/api/placeholder/800/600'; this.alt='Image 2 not found'">
+        </div>
+        <div class="slide">
+            <img src="image3.jpg.png" alt="Food Image 3" onerror="this.onerror=null; this.src='/api/placeholder/800/600'; this.alt='Image 3 not found'">
+        </div>
+        <div class="slide">
+            <video id="mess-video" controls>
+                <source src="video.mp4.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+        <button class="next-btn">➔</button>
+        <div class="video-controls">
+            <button id="play-pause-btn">Play</button>
+        </div>
+    </div>
+
+    <div class="floating-buttons">
+        <a href="menu.html">Menu</a>
+        <a href="payment.html">Payment</a>
+        <a href="history.html">History</a>
+    </div>
+
+    <div id="debug-info"></div>
+
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        const nextBtn = document.querySelector('.next-btn');
+        const video = document.getElementById('mess-video');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const videoControls = document.querySelector('.video-controls');
+        const debugInfo = document.getElementById('debug-info');
+        let currentSlide = 0;
+
+        function showSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            currentSlide = (n + slides.length) % slides.length;
+            slides[currentSlide].classList.add('active');
+            
+            if (currentSlide === slides.length - 1) {
+                videoControls.style.display = 'block';
+            } else {
+                videoControls.style.display = 'none';
+                video.pause();
+                playPauseBtn.textContent = 'Play';
+            }
+
+            updateDebugInfo();
+        }
+
+        nextBtn.addEventListener('click', () => {
+            showSlide(currentSlide + 1);
+        });
+
+        playPauseBtn.addEventListener('click', () => {
+            if (video.paused) {
+                video.play();
+                playPauseBtn.textContent = 'Pause';
+            } else {
+                video.pause();
+                playPauseBtn.textContent = 'Play';
+            }
+        });
+
+        function updateDebugInfo() {
+            debugInfo.innerHTML = `
+                Current Slide: ${currentSlide + 1}<br>
+                Total Slides: ${slides.length}<br>
+                Video Loaded: ${video.readyState > 0 ? 'Yes' : 'No'}<br>
+                Images Loaded: ${Array.from(slides).slice(0, 3).map(slide => slide.querySelector('img').complete ? 'Yes' : 'No').join(', ')}
+            `;
+        }
+
+        // Initial debug info update
+        updateDebugInfo();
+
+        // Auto-advance slides every 5 seconds
+        setInterval(() => {
+            if (currentSlide < slides.length - 1) {
+                showSlide(currentSlide + 1);
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
